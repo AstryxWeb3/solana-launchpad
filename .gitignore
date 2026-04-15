@@ -1,0 +1,13 @@
+.anchor
+target/debug/
+target/release/
+target/deploy/
+target/sbpf-*/
+target/sbf-*/
+target/.rustc_info.json
+target/CACHEDIR.TAG
+target/*.json.lock
+node_modules/
+.DS_Store
+*.log
+.env

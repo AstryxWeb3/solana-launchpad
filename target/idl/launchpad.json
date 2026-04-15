@@ -1,0 +1,3336 @@
+{
+  "address": "6Hdc2yw7PRFaxgw39MkHfPH31gjt1wgZHvYoxDsp6yvv",
+  "metadata": {
+    "name": "launchpad",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Solana token launchpad with bonding curve and presale modes"
+  },
+  "instructions": [
+    {
+      "name": "accept_admin",
+      "discriminator": [
+        112,
+        42,
+        45,
+        90,
+        116,
+        181,
+        13,
+        170
+      ],
+      "accounts": [
+        {
+          "name": "new_admin",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "buy_bonding",
+      "discriminator": [
+        223,
+        204,
+        211,
+        74,
+        11,
+        184,
+        179,
+        111
+      ],
+      "accounts": [
+        {
+          "name": "buyer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.mint",
+                "account": "BondingCurvePool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "buyer_position",
+          "docs": [
+            "Per-wallet position tracking for max buy enforcement (H-2 fix)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  115,
+                  105,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "path": "buyer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "sol_vault",
+          "docs": [
+            "SOL vault PDA"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  115,
+                  111,
+                  108,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.mint",
+                "account": "BondingCurvePool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_vault",
+          "docs": [
+            "Token vault"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.mint",
+                "account": "BondingCurvePool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "buyer_token_account",
+          "docs": [
+            "Buyer's token account"
+          ],
+          "writable": true
+        },
+        {
+          "name": "dev_wallet",
+          "writable": true
+        },
+        {
+          "name": "platform_wallet",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "sol_amount",
+          "type": "u64"
+        },
+        {
+          "name": "min_tokens_out",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "claim_presale",
+      "discriminator": [
+        82,
+        240,
+        122,
+        5,
+        109,
+        66,
+        86,
+        190
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "signer": true
+        },
+        {
+          "name": "pool",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  101,
+                  115,
+                  97,
+                  108,
+                  101,
+                  95,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.mint",
+                "account": "PresalePool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_position",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  115,
+                  105,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_vault",
+          "docs": [
+            "Token vault"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  101,
+                  115,
+                  97,
+                  108,
+                  101,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.mint",
+                "account": "PresalePool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_token_account",
+          "docs": [
+            "User's token account"
+          ],
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "contribute_presale",
+      "discriminator": [
+        248,
+        72,
+        28,
+        96,
+        70,
+        166,
+        8,
+        117
+      ],
+      "accounts": [
+        {
+          "name": "contributor",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  101,
+                  115,
+                  97,
+                  108,
+                  101,
+                  95,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.mint",
+                "account": "PresalePool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "sol_vault",
+          "docs": [
+            "SOL vault"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  101,
+                  115,
+                  97,
+                  108,
+                  101,
+                  95,
+                  115,
+                  111,
+                  108,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.mint",
+                "account": "PresalePool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_position",
+          "docs": [
+            "User's position for this pool (init-if-needed for first contribution)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  115,
+                  105,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "path": "contributor"
+              }
+            ]
+          }
+        },
+        {
+          "name": "platform_wallet",
+          "docs": [
+            "Platform wallet for presale fee"
+          ],
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "sol_amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "create_bonding_pool",
+      "discriminator": [
+        240,
+        13,
+        25,
+        154,
+        169,
+        153,
+        25,
+        43
+      ],
+      "accounts": [
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "docs": [
+            "Token mint — creator must be mint authority initially"
+          ],
+          "writable": true
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "sol_vault",
+          "docs": [
+            "SOL vault PDA holding native SOL lamports."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  115,
+                  111,
+                  108,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_vault",
+          "docs": [
+            "Token vault holding the token supply"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "CreateBondingPoolParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "create_presale_pool",
+      "discriminator": [
+        255,
+        111,
+        192,
+        70,
+        143,
+        255,
+        232,
+        85
+      ],
+      "accounts": [
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "docs": [
+            "Token mint — creator must be mint authority"
+          ],
+          "writable": true
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  101,
+                  115,
+                  97,
+                  108,
+                  101,
+                  95,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "sol_vault",
+          "docs": [
+            "SOL vault"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  101,
+                  115,
+                  97,
+                  108,
+                  101,
+                  95,
+                  115,
+                  111,
+                  108,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_vault",
+          "docs": [
+            "Token vault"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  101,
+                  115,
+                  97,
+                  108,
+                  101,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "CreatePresalePoolParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "execute_buyback",
+      "discriminator": [
+        47,
+        32,
+        19,
+        100,
+        184,
+        96,
+        144,
+        49
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "docs": [
+            "Anyone can trigger buyback (permissionless crank)"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "buyback_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  121,
+                  98,
+                  97,
+                  99,
+                  107
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "buyback_state.pool",
+                "account": "BuybackState"
+              }
+            ]
+          }
+        },
+        {
+          "name": "buyback_sol_vault",
+          "docs": [
+            "SOL vault PDA that holds the buyback treasury SOL.",
+            "This is the pool's sol_vault — validated via seeds in the handler",
+            "because seeds depend on pool_type (bonding vs presale)."
+          ],
+          "writable": true
+        },
+        {
+          "name": "pool_mint"
+        },
+        {
+          "name": "payer_wsol_account",
+          "docs": [
+            "Payer's WSOL account (SOL gets wrapped here for the swap)"
+          ],
+          "writable": true
+        },
+        {
+          "name": "payer_token_account",
+          "docs": [
+            "Payer's token account to receive bought-back tokens"
+          ],
+          "writable": true
+        },
+        {
+          "name": "token_mint",
+          "docs": [
+            "Token mint (for burning)"
+          ],
+          "writable": true
+        },
+        {
+          "name": "meteora_program"
+        },
+        {
+          "name": "meteora_pool",
+          "writable": true
+        },
+        {
+          "name": "meteora_input_vault",
+          "writable": true
+        },
+        {
+          "name": "meteora_output_vault",
+          "writable": true
+        },
+        {
+          "name": "wsol_mint"
+        },
+        {
+          "name": "protocol_fee",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "ExecuteBuybackParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "InitializeParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "migrate_bonding",
+      "discriminator": [
+        171,
+        184,
+        81,
+        127,
+        253,
+        22,
+        158,
+        206
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "docs": [
+            "C-6: Only admin can trigger migration"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.mint",
+                "account": "BondingCurvePool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "sol_vault",
+          "docs": [
+            "SOL vault"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  115,
+                  111,
+                  108,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.mint",
+                "account": "BondingCurvePool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_vault",
+          "docs": [
+            "Token vault"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.mint",
+                "account": "BondingCurvePool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "buyback_state",
+          "docs": [
+            "Buyback state account (init)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  121,
+                  98,
+                  97,
+                  99,
+                  107
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "platform_wallet",
+          "docs": [
+            "Platform wallet receives migration fee"
+          ],
+          "writable": true
+        },
+        {
+          "name": "meteora_program"
+        },
+        {
+          "name": "meteora_pool",
+          "writable": true
+        },
+        {
+          "name": "meteora_pool_config"
+        },
+        {
+          "name": "position_nft_mint",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "position_nft_account",
+          "writable": true
+        },
+        {
+          "name": "position_account",
+          "writable": true
+        },
+        {
+          "name": "position_nft_metadata",
+          "writable": true
+        },
+        {
+          "name": "meteora_vault_a",
+          "writable": true
+        },
+        {
+          "name": "meteora_vault_b",
+          "writable": true
+        },
+        {
+          "name": "wsol_mint",
+          "docs": [
+            "C-7: WSOL mint — validated to be the canonical native mint"
+          ]
+        },
+        {
+          "name": "token_mint",
+          "docs": [
+            "H-4: Actual token mint (for Meteora pool creation)"
+          ]
+        },
+        {
+          "name": "payer_wsol_account",
+          "writable": true
+        },
+        {
+          "name": "payer_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "migrate_presale",
+      "discriminator": [
+        10,
+        76,
+        8,
+        246,
+        151,
+        28,
+        91,
+        25
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "docs": [
+            "C-6: Only admin can trigger migration"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  101,
+                  115,
+                  97,
+                  108,
+                  101,
+                  95,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.mint",
+                "account": "PresalePool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "sol_vault",
+          "docs": [
+            "SOL vault"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  101,
+                  115,
+                  97,
+                  108,
+                  101,
+                  95,
+                  115,
+                  111,
+                  108,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.mint",
+                "account": "PresalePool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_vault",
+          "docs": [
+            "Token vault"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  101,
+                  115,
+                  97,
+                  108,
+                  101,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.mint",
+                "account": "PresalePool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "buyback_state",
+          "docs": [
+            "Buyback state account"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  121,
+                  98,
+                  97,
+                  99,
+                  107
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "platform_wallet",
+          "docs": [
+            "Platform wallet"
+          ],
+          "writable": true
+        },
+        {
+          "name": "creator_wallet",
+          "docs": [
+            "Creator wallet for creator pool allocation"
+          ],
+          "writable": true
+        },
+        {
+          "name": "meteora_program"
+        },
+        {
+          "name": "meteora_pool",
+          "writable": true
+        },
+        {
+          "name": "meteora_pool_config"
+        },
+        {
+          "name": "position_nft_mint",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "position_nft_account",
+          "writable": true
+        },
+        {
+          "name": "position_account",
+          "writable": true
+        },
+        {
+          "name": "position_nft_metadata",
+          "writable": true
+        },
+        {
+          "name": "meteora_vault_a",
+          "writable": true
+        },
+        {
+          "name": "meteora_vault_b",
+          "writable": true
+        },
+        {
+          "name": "wsol_mint",
+          "docs": [
+            "C-7: WSOL mint validated"
+          ]
+        },
+        {
+          "name": "token_mint",
+          "docs": [
+            "H-4: Token mint for Meteora"
+          ]
+        },
+        {
+          "name": "payer_wsol_account",
+          "writable": true
+        },
+        {
+          "name": "payer_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "pause",
+      "discriminator": [
+        211,
+        22,
+        221,
+        251,
+        74,
+        121,
+        193,
+        47
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "propose_admin",
+      "discriminator": [
+        121,
+        214,
+        199,
+        212,
+        87,
+        39,
+        117,
+        234
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_admin",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "refund_presale",
+      "discriminator": [
+        70,
+        192,
+        242,
+        198,
+        106,
+        202,
+        142,
+        48
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  101,
+                  115,
+                  97,
+                  108,
+                  101,
+                  95,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.mint",
+                "account": "PresalePool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_position",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  115,
+                  105,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "sol_vault",
+          "docs": [
+            "SOL vault"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  101,
+                  115,
+                  97,
+                  108,
+                  101,
+                  95,
+                  115,
+                  111,
+                  108,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.mint",
+                "account": "PresalePool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "sell_bonding",
+      "discriminator": [
+        160,
+        199,
+        9,
+        23,
+        236,
+        33,
+        49,
+        0
+      ],
+      "accounts": [
+        {
+          "name": "seller",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.mint",
+                "account": "BondingCurvePool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "sol_vault",
+          "docs": [
+            "SOL vault PDA"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  115,
+                  111,
+                  108,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.mint",
+                "account": "BondingCurvePool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_vault",
+          "docs": [
+            "Token vault"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.mint",
+                "account": "BondingCurvePool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "seller_token_account",
+          "docs": [
+            "Seller's token account"
+          ],
+          "writable": true
+        },
+        {
+          "name": "platform_wallet",
+          "docs": [
+            "Platform wallet receives platform fee"
+          ],
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "token_amount",
+          "type": "u64"
+        },
+        {
+          "name": "min_sol_out",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "unpause",
+      "discriminator": [
+        169,
+        144,
+        4,
+        38,
+        10,
+        141,
+        188,
+        255
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_config",
+      "discriminator": [
+        29,
+        158,
+        252,
+        191,
+        10,
+        83,
+        219,
+        99
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "UpdateConfigParams"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "BondingCurvePool",
+      "discriminator": [
+        167,
+        155,
+        150,
+        227,
+        65,
+        117,
+        3,
+        86
+      ]
+    },
+    {
+      "name": "BuybackState",
+      "discriminator": [
+        247,
+        168,
+        248,
+        43,
+        167,
+        32,
+        210,
+        84
+      ]
+    },
+    {
+      "name": "GlobalConfig",
+      "discriminator": [
+        149,
+        8,
+        156,
+        202,
+        160,
+        252,
+        176,
+        217
+      ]
+    },
+    {
+      "name": "PresalePool",
+      "discriminator": [
+        40,
+        45,
+        173,
+        158,
+        138,
+        60,
+        76,
+        118
+      ]
+    },
+    {
+      "name": "UserPosition",
+      "discriminator": [
+        251,
+        248,
+        209,
+        245,
+        83,
+        234,
+        17,
+        27
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "BuybackExecuted",
+      "discriminator": [
+        150,
+        109,
+        157,
+        10,
+        124,
+        24,
+        38,
+        189
+      ]
+    },
+    {
+      "name": "ConfigUpdated",
+      "discriminator": [
+        40,
+        241,
+        230,
+        122,
+        11,
+        19,
+        198,
+        194
+      ]
+    },
+    {
+      "name": "MigrationCompleted",
+      "discriminator": [
+        223,
+        45,
+        123,
+        192,
+        106,
+        249,
+        6,
+        241
+      ]
+    },
+    {
+      "name": "MigrationReady",
+      "discriminator": [
+        15,
+        71,
+        184,
+        9,
+        194,
+        36,
+        174,
+        235
+      ]
+    },
+    {
+      "name": "PoolCreated",
+      "discriminator": [
+        202,
+        44,
+        41,
+        88,
+        104,
+        220,
+        157,
+        82
+      ]
+    },
+    {
+      "name": "PresaleClaimed",
+      "discriminator": [
+        71,
+        206,
+        74,
+        134,
+        208,
+        95,
+        73,
+        99
+      ]
+    },
+    {
+      "name": "PresaleContribution",
+      "discriminator": [
+        236,
+        32,
+        200,
+        82,
+        145,
+        235,
+        141,
+        28
+      ]
+    },
+    {
+      "name": "PresaleRefunded",
+      "discriminator": [
+        136,
+        243,
+        241,
+        106,
+        87,
+        219,
+        231,
+        232
+      ]
+    },
+    {
+      "name": "TokensBought",
+      "discriminator": [
+        151,
+        148,
+        173,
+        226,
+        128,
+        30,
+        249,
+        190
+      ]
+    },
+    {
+      "name": "TokensSold",
+      "discriminator": [
+        217,
+        83,
+        68,
+        137,
+        134,
+        225,
+        94,
+        45
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "MathOverflow",
+      "msg": "Arithmetic overflow"
+    },
+    {
+      "code": 6001,
+      "name": "MathUnderflow",
+      "msg": "Arithmetic underflow"
+    },
+    {
+      "code": 6002,
+      "name": "DivisionByZero",
+      "msg": "Division by zero"
+    },
+    {
+      "code": 6003,
+      "name": "CastOverflow",
+      "msg": "Result exceeds u64 range"
+    },
+    {
+      "code": 6004,
+      "name": "UnauthorizedAdmin",
+      "msg": "Unauthorized: not admin"
+    },
+    {
+      "code": 6005,
+      "name": "UnauthorizedPauseAuthority",
+      "msg": "Unauthorized: not pause authority"
+    },
+    {
+      "code": 6006,
+      "name": "UnauthorizedCreator",
+      "msg": "Unauthorized: not pool creator"
+    },
+    {
+      "code": 6007,
+      "name": "PlatformPaused",
+      "msg": "Platform is paused"
+    },
+    {
+      "code": 6008,
+      "name": "PoolPaused",
+      "msg": "Pool is paused"
+    },
+    {
+      "code": 6009,
+      "name": "AlreadyMigrated",
+      "msg": "Pool already migrated"
+    },
+    {
+      "code": 6010,
+      "name": "NotMigrated",
+      "msg": "Pool not migrated yet"
+    },
+    {
+      "code": 6011,
+      "name": "MigrationTargetNotReached",
+      "msg": "Migration target not reached"
+    },
+    {
+      "code": 6012,
+      "name": "PoolNotActive",
+      "msg": "Pool is not active"
+    },
+    {
+      "code": 6013,
+      "name": "ExceedsMaxBuy",
+      "msg": "Buy amount exceeds max 1% per wallet"
+    },
+    {
+      "code": 6014,
+      "name": "InsufficientTokenReserves",
+      "msg": "Insufficient token reserves"
+    },
+    {
+      "code": 6015,
+      "name": "InsufficientSolReserves",
+      "msg": "Insufficient SOL reserves"
+    },
+    {
+      "code": 6016,
+      "name": "SlippageExceeded",
+      "msg": "Slippage tolerance exceeded"
+    },
+    {
+      "code": 6017,
+      "name": "ZeroAmount",
+      "msg": "Amount must be greater than zero"
+    },
+    {
+      "code": 6018,
+      "name": "PresaleEnded",
+      "msg": "Presale has ended"
+    },
+    {
+      "code": 6019,
+      "name": "PresaleNotEnded",
+      "msg": "Presale has not ended yet"
+    },
+    {
+      "code": 6020,
+      "name": "ExceedsMaxContribution",
+      "msg": "Contribution exceeds max 1% per wallet"
+    },
+    {
+      "code": 6021,
+      "name": "AlreadyClaimed",
+      "msg": "Tokens already claimed"
+    },
+    {
+      "code": 6022,
+      "name": "AlreadyRefunded",
+      "msg": "Refund already claimed"
+    },
+    {
+      "code": 6023,
+      "name": "TargetReached",
+      "msg": "Presale target was reached, no refund"
+    },
+    {
+      "code": 6024,
+      "name": "InvalidMigrationTarget",
+      "msg": "Invalid migration target: must be 100-10000 SOL"
+    },
+    {
+      "code": 6025,
+      "name": "InvalidEndTime",
+      "msg": "Invalid end time: must be in the future"
+    },
+    {
+      "code": 6026,
+      "name": "BuybackTooFrequent",
+      "msg": "Buyback rate limit: too frequent"
+    },
+    {
+      "code": 6027,
+      "name": "InsufficientTreasury",
+      "msg": "Insufficient treasury balance for buyback"
+    },
+    {
+      "code": 6028,
+      "name": "InvalidBuybackMode",
+      "msg": "Invalid buyback mode"
+    },
+    {
+      "code": 6029,
+      "name": "InvalidFeeConfig",
+      "msg": "Invalid fee configuration"
+    },
+    {
+      "code": 6030,
+      "name": "InvalidPoolParams",
+      "msg": "Invalid pool parameters"
+    }
+  ],
+  "types": [
+    {
+      "name": "BondingCurvePool",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "creator",
+            "docs": [
+              "Pool creator"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "docs": [
+              "Token mint"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "virtual_sol_reserves",
+            "docs": [
+              "Virtual SOL reserves for price calculation"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "virtual_token_reserves",
+            "docs": [
+              "Virtual token reserves for price calculation"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "real_sol_reserves",
+            "docs": [
+              "Actual SOL collected (in lamports)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "real_token_reserves",
+            "docs": [
+              "Actual tokens remaining in vault"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "initial_real_token_reserves",
+            "docs": [
+              "Initial token supply loaded into vault"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "migration_target",
+            "docs": [
+              "SOL target for migration (lamports, default: 100 SOL)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "max_buy_bps",
+            "docs": [
+              "Max buy percentage in basis points (100 = 1%)"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "buyback_treasury",
+            "docs": [
+              "Accumulated sell tax SOL for buyback treasury (lamports)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "is_migrated",
+            "docs": [
+              "Pool has been migrated to Meteora"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "is_paused",
+            "docs": [
+              "Pool-level pause"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "sol_vault_bump",
+            "docs": [
+              "SOL vault bump"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "token_vault_bump",
+            "docs": [
+              "Token vault bump"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BuybackExecuted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "sol_spent",
+            "type": "u64"
+          },
+          {
+            "name": "tokens_received",
+            "type": "u64"
+          },
+          {
+            "name": "mode",
+            "type": "u8"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BuybackMode",
+      "docs": [
+        "Buyback modes for presale"
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Burn"
+          },
+          {
+            "name": "AddLiquidity"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BuybackState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "docs": [
+              "Associated pool pubkey"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "docs": [
+              "Associated token mint"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury_balance",
+            "docs": [
+              "SOL remaining in buyback treasury (lamports)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "last_buyback_slot",
+            "docs": [
+              "Last slot a buyback was executed"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_sol_spent",
+            "docs": [
+              "Total SOL spent on buybacks"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_tokens_bought",
+            "docs": [
+              "Total tokens bought back"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_tokens_burned",
+            "docs": [
+              "Total tokens burned"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_tokens_lp",
+            "docs": [
+              "Total tokens added as liquidity"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "pool_type",
+            "docs": [
+              "Pool type (0 = bonding, 1 = presale)"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConfigUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreateBondingPoolParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "virtual_sol_reserves",
+            "docs": [
+              "Token name (for mint metadata, not stored on-chain in this program)"
+            ],
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "virtual_token_reserves",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "token_supply",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "migration_target",
+            "type": {
+              "option": "u64"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreatePresalePoolParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "migration_target",
+            "docs": [
+              "Migration target in lamports (100-10,000 SOL)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "token_supply",
+            "docs": [
+              "Total token supply to distribute"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "end_time",
+            "docs": [
+              "Presale end time (unix timestamp)"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "creator_pool_bps",
+            "docs": [
+              "Creator pool percentage in bps (default 2000 = 20%)"
+            ],
+            "type": {
+              "option": "u16"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ExecuteBuybackParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mode",
+            "docs": [
+              "Buyback mode: Burn or AddLiquidity"
+            ],
+            "type": {
+              "defined": {
+                "name": "BuybackMode"
+              }
+            }
+          },
+          {
+            "name": "min_tokens_out",
+            "docs": [
+              "Minimum tokens expected (slippage protection)"
+            ],
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "GlobalConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "docs": [
+              "Full admin authority"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "pause_authority",
+            "docs": [
+              "Can pause/unpause only"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "dev_wallet",
+            "docs": [
+              "Receives dev portion of fees"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "platform_wallet",
+            "docs": [
+              "Receives platform portion of fees"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "dev_fee_bps",
+            "docs": [
+              "Dev fee in basis points (default: 50 = 0.5%)"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "platform_fee_bps",
+            "docs": [
+              "Platform fee in basis points (default: 50 = 0.5%)"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "sell_tax_bps",
+            "docs": [
+              "Sell tax in basis points (default: 2400 = 24%)"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "presale_platform_fee_bps",
+            "docs": [
+              "Presale buy fee in basis points (default: 100 = 1%)"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "migration_fee_bps",
+            "docs": [
+              "Migration fee in basis points (default: 100 = 1%)"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "pending_admin",
+            "docs": [
+              "Pending admin for two-step transfer (Pubkey::default() = none)"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "is_paused",
+            "docs": [
+              "Global pause flag"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "InitializeParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pause_authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "dev_wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "platform_wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "dev_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "platform_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "sell_tax_bps",
+            "type": "u16"
+          },
+          {
+            "name": "presale_platform_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "migration_fee_bps",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MigrationCompleted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "pool_type",
+            "type": "u8"
+          },
+          {
+            "name": "meteora_pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "liquidity_sol",
+            "type": "u64"
+          },
+          {
+            "name": "liquidity_tokens",
+            "type": "u64"
+          },
+          {
+            "name": "platform_fee",
+            "type": "u64"
+          },
+          {
+            "name": "buyback_allocation",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MigrationReady",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "sol_raised",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PoolCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "pool_type",
+            "type": "u8"
+          },
+          {
+            "name": "migration_target",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PresaleClaimed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "token_amount",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PresaleContribution",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "contributor",
+            "type": "pubkey"
+          },
+          {
+            "name": "sol_amount",
+            "type": "u64"
+          },
+          {
+            "name": "total_raised",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PresalePool",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "creator",
+            "docs": [
+              "Pool creator"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "docs": [
+              "Token mint"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "migration_target",
+            "docs": [
+              "SOL target for migration (lamports, 100-10000 SOL)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "current_raised",
+            "docs": [
+              "Total SOL raised so far (lamports)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_token_supply",
+            "docs": [
+              "Total token supply for distribution"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "max_buy_bps",
+            "docs": [
+              "Max contribution per wallet in basis points (100 = 1%)"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "creator_pool_bps",
+            "docs": [
+              "Creator pool percentage in basis points (2000 = 20%)"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "end_time",
+            "docs": [
+              "Presale end time (unix timestamp)"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "num_contributors",
+            "docs": [
+              "Number of unique contributors"
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "is_migrated",
+            "docs": [
+              "Pool has been migrated to Meteora"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "sol_vault_bump",
+            "docs": [
+              "SOL vault bump"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "token_vault_bump",
+            "docs": [
+              "Token vault bump"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PresaleRefunded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "sol_amount",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokensBought",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "sol_amount",
+            "type": "u64"
+          },
+          {
+            "name": "token_amount",
+            "type": "u64"
+          },
+          {
+            "name": "dev_fee",
+            "type": "u64"
+          },
+          {
+            "name": "platform_fee",
+            "type": "u64"
+          },
+          {
+            "name": "new_price",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokensSold",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "seller",
+            "type": "pubkey"
+          },
+          {
+            "name": "token_amount",
+            "type": "u64"
+          },
+          {
+            "name": "sol_amount",
+            "type": "u64"
+          },
+          {
+            "name": "platform_fee",
+            "type": "u64"
+          },
+          {
+            "name": "sell_tax",
+            "type": "u64"
+          },
+          {
+            "name": "new_price",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateConfigParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "new_pause_authority",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "new_dev_wallet",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "new_platform_wallet",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "new_dev_fee_bps",
+            "type": {
+              "option": "u16"
+            }
+          },
+          {
+            "name": "new_platform_fee_bps",
+            "type": {
+              "option": "u16"
+            }
+          },
+          {
+            "name": "new_sell_tax_bps",
+            "type": {
+              "option": "u16"
+            }
+          },
+          {
+            "name": "new_presale_platform_fee_bps",
+            "type": {
+              "option": "u16"
+            }
+          },
+          {
+            "name": "new_migration_fee_bps",
+            "type": {
+              "option": "u16"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "UserPosition",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user",
+            "docs": [
+              "User public key"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "pool",
+            "docs": [
+              "Pool this position belongs to"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "sol_contributed",
+            "docs": [
+              "Total SOL contributed (lamports)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "tokens_claimed",
+            "docs": [
+              "Whether tokens have been claimed (presale only)"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "refund_claimed",
+            "docs": [
+              "Whether refund has been claimed (presale only)"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ]
+}

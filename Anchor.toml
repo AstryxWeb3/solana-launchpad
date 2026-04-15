@@ -1,0 +1,22 @@
+[features]
+seeds = false
+skip-lint = false
+
+[programs.localnet]
+launchpad = "6Hdc2yw7PRFaxgw39MkHfPH31gjt1wgZHvYoxDsp6yvv"
+
+[programs.devnet]
+launchpad = "6Hdc2yw7PRFaxgw39MkHfPH31gjt1wgZHvYoxDsp6yvv"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "Localnet"
+wallet = "~/.config/solana/id.json"
+
+[test]
+startup_wait = 20000
+
+[scripts]
+test = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
