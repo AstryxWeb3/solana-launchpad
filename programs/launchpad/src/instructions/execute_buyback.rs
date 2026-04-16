@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, Burn, Mint, Token, TokenAccount};
+use anchor_spl::token::{self, Burn, Mint, Token, TokenAccount, Transfer};
 
 use crate::cpi_meteora::{self, SwapAccounts, SwapParams, METEORA_PROGRAM_ID};
 use crate::errors::LaunchpadError;
@@ -13,6 +13,10 @@ pub struct ExecuteBuybackParams {
     /// Minimum tokens expected (slippage protection)
     pub min_tokens_out: u64,
 }
+
+/// Seeds for the buyback token vault PDA that holds tokens
+/// between swap and burn/LP-add. Caller CANNOT touch these.
+pub const BUYBACK_TOKEN_VAULT_SEED: &[u8] = b"buyback_token_vault";
 
 #[derive(Accounts)]
 pub struct ExecuteBuyback<'info> {
@@ -28,28 +32,25 @@ pub struct ExecuteBuyback<'info> {
     )]
     pub buyback_state: Box<Account<'info, BuybackState>>,
 
-    /// SOL vault PDA that holds the buyback treasury SOL.
-    /// This is the pool's sol_vault — validated via seeds in the handler
-    /// because seeds depend on pool_type (bonding vs presale).
-    /// CHECK: Validated in handler against pool's sol_vault PDA derivation
+    /// SOL vault PDA — validated in handler via PDA derivation
+    /// CHECK: Validated in handler against pool's sol_vault PDA
     #[account(mut)]
     pub buyback_sol_vault: SystemAccount<'info>,
 
-    /// CHECK: The token mint for the pool — needed for PDA derivation
+    /// CHECK: Token mint — validated against buyback_state.mint
     #[account(constraint = pool_mint.key() == buyback_state.mint @ LaunchpadError::InvalidPoolParams)]
     pub pool_mint: UncheckedAccount<'info>,
 
-    /// Payer's WSOL account (SOL gets wrapped here for the swap)
-    /// CHECK: token account for WSOL
-    #[account(mut)]
-    pub payer_wsol_account: UncheckedAccount<'info>,
-
-    /// Payer's token account to receive bought-back tokens
+    /// Program-owned token vault PDA for receiving swapped tokens.
+    /// Tokens land here, NOT in payer's wallet. This prevents theft.
     #[account(
         mut,
         token::mint = token_mint.key(),
+        token::authority = buyback_state,
+        seeds = [BUYBACK_TOKEN_VAULT_SEED, buyback_state.pool.as_ref()],
+        bump,
     )]
-    pub payer_token_account: Box<Account<'info, TokenAccount>>,
+    pub buyback_token_vault: Box<Account<'info, TokenAccount>>,
 
     /// Token mint (for burning)
     #[account(
@@ -64,8 +65,13 @@ pub struct ExecuteBuyback<'info> {
     #[account(constraint = meteora_program.key() == METEORA_PROGRAM_ID @ LaunchpadError::InvalidPoolParams)]
     pub meteora_program: UncheckedAccount<'info>,
 
-    /// CHECK: Meteora pool for swap
-    #[account(mut)]
+    /// FIX #2: Meteora pool — MUST match the pool recorded during migration
+    /// CHECK: Validated against buyback_state.meteora_pool
+    #[account(
+        mut,
+        constraint = meteora_pool.key() == buyback_state.meteora_pool
+            @ LaunchpadError::InvalidPoolParams
+    )]
     pub meteora_pool: UncheckedAccount<'info>,
 
     /// CHECK: Meteora input vault (SOL/WSOL side)
@@ -76,14 +82,18 @@ pub struct ExecuteBuyback<'info> {
     #[account(mut)]
     pub meteora_output_vault: UncheckedAccount<'info>,
 
-    /// CHECK: C-7: WSOL mint validated
+    /// CHECK: WSOL mint — validated canonical address
     #[account(
         constraint = wsol_mint.key() == anchor_spl::token::spl_token::native_mint::id()
             @ LaunchpadError::InvalidPoolParams
     )]
     pub wsol_mint: UncheckedAccount<'info>,
 
-    /// CHECK: Protocol fee account
+    /// CHECK: Payer's WSOL account for swap input
+    #[account(mut)]
+    pub payer_wsol_account: UncheckedAccount<'info>,
+
+    /// CHECK: Protocol fee account for Meteora
     #[account(mut)]
     pub protocol_fee: UncheckedAccount<'info>,
 
@@ -99,7 +109,6 @@ pub fn handle_execute_buyback(
 
     // ── CHECKS ──────────────────────────────────────────────────────
 
-    // Rate limit
     let current_slot = Clock::get()?.slot;
     if buyback.last_buyback_slot > 0 {
         require!(
@@ -110,13 +119,11 @@ pub fn handle_execute_buyback(
         );
     }
 
-    // L-7: Strict pool_type validation
     require!(
         buyback.pool_type == 0 || buyback.pool_type == 1,
         LaunchpadError::InvalidBuybackMode
     );
 
-    // Calculate buyback amount
     let buyback_bps = if buyback.pool_type == 0 {
         BuybackState::BONDING_BUYBACK_BPS
     } else {
@@ -142,20 +149,16 @@ pub fn handle_execute_buyback(
 
     // ── INTERACTIONS ────────────────────────────────────────────────
 
-    // C-4 FIX: Transfer SOL from the pool's sol_vault PDA.
-    // Derive correct signer seeds based on pool_type.
+    // 1. Derive and validate sol_vault PDA
     let mint_key = ctx.accounts.pool_mint.key();
     let pool_type = ctx.accounts.buyback_state.pool_type;
 
-    // Validate buyback_sol_vault is the correct PDA
     let (expected_vault, vault_bump) = if pool_type == 0 {
-        // Bonding pool sol vault
         Pubkey::find_program_address(
             &[b"bonding_sol_vault", mint_key.as_ref()],
             ctx.program_id,
         )
     } else {
-        // Presale pool sol vault
         Pubkey::find_program_address(
             &[b"presale_sol_vault", mint_key.as_ref()],
             ctx.program_id,
@@ -172,6 +175,7 @@ pub fn handle_execute_buyback(
         &[&[b"presale_sol_vault", mint_key.as_ref(), &[vault_bump]]]
     };
 
+    // Transfer SOL → payer's WSOL for the swap
     anchor_lang::system_program::transfer(
         CpiContext::new_with_signer(
             ctx.accounts.system_program.to_account_info(),
@@ -184,10 +188,11 @@ pub fn handle_execute_buyback(
         sol_to_spend,
     )?;
 
-    // 2. Get token balance before swap for accurate accounting
-    let token_balance_before = ctx.accounts.payer_token_account.amount;
+    // 2. Record vault balance before swap
+    let vault_balance_before = ctx.accounts.buyback_token_vault.amount;
 
     // 3. CPI: Swap SOL → Token on Meteora
+    //    FIX #1: Tokens go to buyback_token_vault (PDA), NOT payer
     let swap_accounts = SwapAccounts {
         pool: ctx.accounts.meteora_pool.to_account_info(),
         input_vault: ctx.accounts.meteora_input_vault.to_account_info(),
@@ -195,7 +200,7 @@ pub fn handle_execute_buyback(
         input_mint: ctx.accounts.wsol_mint.to_account_info(),
         output_mint: ctx.accounts.token_mint.to_account_info(),
         user_input_token: ctx.accounts.payer_wsol_account.to_account_info(),
-        user_output_token: ctx.accounts.payer_token_account.to_account_info(),
+        user_output_token: ctx.accounts.buyback_token_vault.to_account_info(),
         user: ctx.accounts.payer.to_account_info(),
         protocol_fee: ctx.accounts.protocol_fee.to_account_info(),
         input_token_program: ctx.accounts.token_program.to_account_info(),
@@ -212,10 +217,10 @@ pub fn handle_execute_buyback(
         &[],
     )?;
 
-    // 4. Reload token account to get actual tokens received
-    ctx.accounts.payer_token_account.reload()?;
-    let tokens_received = ctx.accounts.payer_token_account.amount
-        .checked_sub(token_balance_before)
+    // 4. Reload to get actual tokens received
+    ctx.accounts.buyback_token_vault.reload()?;
+    let tokens_received = ctx.accounts.buyback_token_vault.amount
+        .checked_sub(vault_balance_before)
         .ok_or(LaunchpadError::MathUnderflow)?;
 
     require!(
@@ -223,18 +228,27 @@ pub fn handle_execute_buyback(
         LaunchpadError::SlippageExceeded
     );
 
-    // 5. Handle tokens based on mode
+    // 5. Handle based on mode
+    let pool_key = ctx.accounts.buyback_state.pool;
+    let buyback_bump = ctx.accounts.buyback_state.bump;
+    let buyback_signer: &[&[&[u8]]] = &[&[
+        BuybackState::SEED,
+        pool_key.as_ref(),
+        &[buyback_bump],
+    ]];
+
     match params.mode {
         BuybackMode::Burn => {
-            // Burn the tokens
+            // Burn tokens FROM the PDA vault (buyback_state is authority)
             token::burn(
-                CpiContext::new(
+                CpiContext::new_with_signer(
                     ctx.accounts.token_program.to_account_info(),
                     Burn {
                         mint: ctx.accounts.token_mint.to_account_info(),
-                        from: ctx.accounts.payer_token_account.to_account_info(),
-                        authority: ctx.accounts.payer.to_account_info(),
+                        from: ctx.accounts.buyback_token_vault.to_account_info(),
+                        authority: ctx.accounts.buyback_state.to_account_info(),
                     },
+                    buyback_signer,
                 ),
                 tokens_received,
             )?;
@@ -244,10 +258,9 @@ pub fn handle_execute_buyback(
                 .checked_add(tokens_received).ok_or(LaunchpadError::MathOverflow)?;
         }
         BuybackMode::AddLiquidity => {
-            // Tokens stay in payer's account — they will be added as LP
-            // in a separate add_liquidity CPI call (can be batched by caller)
-            // For simplicity, we track them here. The caller is responsible
-            // for actually adding liquidity to the Meteora pool.
+            // Tokens stay in buyback_token_vault (program PDA).
+            // A separate permissioned add_liquidity instruction can move them
+            // to the Meteora pool. Caller CANNOT withdraw them.
             ctx.accounts.buyback_state.total_tokens_lp = ctx
                 .accounts.buyback_state.total_tokens_lp
                 .checked_add(tokens_received).ok_or(LaunchpadError::MathOverflow)?;
@@ -257,8 +270,6 @@ pub fn handle_execute_buyback(
     ctx.accounts.buyback_state.total_tokens_bought = ctx
         .accounts.buyback_state.total_tokens_bought
         .checked_add(tokens_received).ok_or(LaunchpadError::MathOverflow)?;
-
-    // ── EVENTS ──────────────────────────────────────────────────────
 
     emit!(BuybackExecuted {
         pool: ctx.accounts.buyback_state.pool,

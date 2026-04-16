@@ -16,6 +16,8 @@ pub struct BuybackState {
     pub pool: Pubkey,
     /// Associated token mint
     pub mint: Pubkey,
+    /// Meteora DAMM pool created during migration — validated on every buyback
+    pub meteora_pool: Pubkey,
 
     /// SOL remaining in buyback treasury (lamports)
     pub treasury_balance: u64,

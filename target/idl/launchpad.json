@@ -926,9 +926,7 @@
         {
           "name": "buyback_sol_vault",
           "docs": [
-            "SOL vault PDA that holds the buyback treasury SOL.",
-            "This is the pool's sol_vault — validated via seeds in the handler",
-            "because seeds depend on pool_type (bonding vs presale)."
+            "SOL vault PDA — validated in handler via PDA derivation"
           ],
           "writable": true
         },
@@ -936,18 +934,45 @@
           "name": "pool_mint"
         },
         {
-          "name": "payer_wsol_account",
+          "name": "buyback_token_vault",
           "docs": [
-            "Payer's WSOL account (SOL gets wrapped here for the swap)"
+            "Program-owned token vault PDA for receiving swapped tokens.",
+            "Tokens land here, NOT in payer's wallet. This prevents theft."
           ],
-          "writable": true
-        },
-        {
-          "name": "payer_token_account",
-          "docs": [
-            "Payer's token account to receive bought-back tokens"
-          ],
-          "writable": true
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  121,
+                  98,
+                  97,
+                  99,
+                  107,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "buyback_state.pool",
+                "account": "BuybackState"
+              }
+            ]
+          }
         },
         {
           "name": "token_mint",
@@ -961,6 +986,9 @@
         },
         {
           "name": "meteora_pool",
+          "docs": [
+            "FIX #2: Meteora pool — MUST match the pool recorded during migration"
+          ],
           "writable": true
         },
         {
@@ -973,6 +1001,10 @@
         },
         {
           "name": "wsol_mint"
+        },
+        {
+          "name": "payer_wsol_account",
+          "writable": true
         },
         {
           "name": "protocol_fee",
@@ -1226,6 +1258,45 @@
           }
         },
         {
+          "name": "buyback_token_vault",
+          "docs": [
+            "Token vault for buyback — tokens land here during buyback, not in payer wallet"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  121,
+                  98,
+                  97,
+                  99,
+                  107,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
           "name": "platform_wallet",
           "docs": [
             "Platform wallet receives migration fee"
@@ -1276,7 +1347,7 @@
         {
           "name": "token_mint",
           "docs": [
-            "H-4: Actual token mint (for Meteora pool creation)"
+            "H-4: Actual token mint (for Meteora pool creation + buyback vault init)"
           ]
         },
         {
@@ -1481,6 +1552,45 @@
           }
         },
         {
+          "name": "buyback_token_vault",
+          "docs": [
+            "Token vault for buyback — tokens land here during buyback"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  121,
+                  98,
+                  97,
+                  99,
+                  107,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
           "name": "platform_wallet",
           "docs": [
             "Platform wallet"
@@ -1538,7 +1648,7 @@
         {
           "name": "token_mint",
           "docs": [
-            "H-4: Token mint for Meteora"
+            "H-4: Token mint for Meteora + buyback vault init"
           ]
         },
         {
@@ -2570,6 +2680,13 @@
             "name": "mint",
             "docs": [
               "Associated token mint"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "meteora_pool",
+            "docs": [
+              "Meteora DAMM pool created during migration — validated on every buyback"
             ],
             "type": "pubkey"
           },

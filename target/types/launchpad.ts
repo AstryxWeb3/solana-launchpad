@@ -932,9 +932,7 @@ export type Launchpad = {
         {
           "name": "buybackSolVault",
           "docs": [
-            "SOL vault PDA that holds the buyback treasury SOL.",
-            "This is the pool's sol_vault — validated via seeds in the handler",
-            "because seeds depend on pool_type (bonding vs presale)."
+            "SOL vault PDA — validated in handler via PDA derivation"
           ],
           "writable": true
         },
@@ -942,18 +940,45 @@ export type Launchpad = {
           "name": "poolMint"
         },
         {
-          "name": "payerWsolAccount",
+          "name": "buybackTokenVault",
           "docs": [
-            "Payer's WSOL account (SOL gets wrapped here for the swap)"
+            "Program-owned token vault PDA for receiving swapped tokens.",
+            "Tokens land here, NOT in payer's wallet. This prevents theft."
           ],
-          "writable": true
-        },
-        {
-          "name": "payerTokenAccount",
-          "docs": [
-            "Payer's token account to receive bought-back tokens"
-          ],
-          "writable": true
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  121,
+                  98,
+                  97,
+                  99,
+                  107,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "buyback_state.pool",
+                "account": "buybackState"
+              }
+            ]
+          }
         },
         {
           "name": "tokenMint",
@@ -967,6 +992,9 @@ export type Launchpad = {
         },
         {
           "name": "meteoraPool",
+          "docs": [
+            "FIX #2: Meteora pool — MUST match the pool recorded during migration"
+          ],
           "writable": true
         },
         {
@@ -979,6 +1007,10 @@ export type Launchpad = {
         },
         {
           "name": "wsolMint"
+        },
+        {
+          "name": "payerWsolAccount",
+          "writable": true
         },
         {
           "name": "protocolFee",
@@ -1232,6 +1264,45 @@ export type Launchpad = {
           }
         },
         {
+          "name": "buybackTokenVault",
+          "docs": [
+            "Token vault for buyback — tokens land here during buyback, not in payer wallet"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  121,
+                  98,
+                  97,
+                  99,
+                  107,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
           "name": "platformWallet",
           "docs": [
             "Platform wallet receives migration fee"
@@ -1282,7 +1353,7 @@ export type Launchpad = {
         {
           "name": "tokenMint",
           "docs": [
-            "H-4: Actual token mint (for Meteora pool creation)"
+            "H-4: Actual token mint (for Meteora pool creation + buyback vault init)"
           ]
         },
         {
@@ -1487,6 +1558,45 @@ export type Launchpad = {
           }
         },
         {
+          "name": "buybackTokenVault",
+          "docs": [
+            "Token vault for buyback — tokens land here during buyback"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  121,
+                  98,
+                  97,
+                  99,
+                  107,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
           "name": "platformWallet",
           "docs": [
             "Platform wallet"
@@ -1544,7 +1654,7 @@ export type Launchpad = {
         {
           "name": "tokenMint",
           "docs": [
-            "H-4: Token mint for Meteora"
+            "H-4: Token mint for Meteora + buyback vault init"
           ]
         },
         {
@@ -2576,6 +2686,13 @@ export type Launchpad = {
             "name": "mint",
             "docs": [
               "Associated token mint"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "meteoraPool",
+            "docs": [
+              "Meteora DAMM pool created during migration — validated on every buyback"
             ],
             "type": "pubkey"
           },

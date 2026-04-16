@@ -62,6 +62,17 @@ pub struct MigrateBonding<'info> {
     )]
     pub buyback_state: Box<Account<'info, BuybackState>>,
 
+    /// Token vault for buyback — tokens land here during buyback, not in payer wallet
+    #[account(
+        init,
+        payer = payer,
+        token::mint = token_mint,
+        token::authority = buyback_state,
+        seeds = [crate::instructions::execute_buyback::BUYBACK_TOKEN_VAULT_SEED, pool.key().as_ref()],
+        bump,
+    )]
+    pub buyback_token_vault: Box<Account<'info, TokenAccount>>,
+
     /// Platform wallet receives migration fee
     /// CHECK: Validated against config
     #[account(
@@ -118,12 +129,11 @@ pub struct MigrateBonding<'info> {
     )]
     pub wsol_mint: UncheckedAccount<'info>,
 
-    /// H-4: Actual token mint (for Meteora pool creation)
-    /// CHECK: Validated to match pool.mint
+    /// H-4: Actual token mint (for Meteora pool creation + buyback vault init)
     #[account(
         constraint = token_mint.key() == pool.mint @ LaunchpadError::InvalidPoolParams
     )]
-    pub token_mint: UncheckedAccount<'info>,
+    pub token_mint: Account<'info, anchor_spl::token::Mint>,
 
     /// CHECK: Payer's WSOL token account (for SOL deposit)
     #[account(mut)]
@@ -186,6 +196,7 @@ pub fn handle_migrate_bonding(ctx: Context<MigrateBonding>) -> Result<()> {
 
     ctx.accounts.buyback_state.pool = pool_key;
     ctx.accounts.buyback_state.mint = pool_mint;
+    ctx.accounts.buyback_state.meteora_pool = ctx.accounts.meteora_pool.key();
     ctx.accounts.buyback_state.treasury_balance = buyback_sol;
     ctx.accounts.buyback_state.last_buyback_slot = 0;
     ctx.accounts.buyback_state.total_sol_spent = 0;
